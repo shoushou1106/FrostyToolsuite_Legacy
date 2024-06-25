@@ -60,6 +60,8 @@ namespace FrostyEditor
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             Exit += Application_Exit;
 
+            Version += " (DcProjShareTest 1.0.0)";
+
 #if FROSTY_DEVELOPER
             Version += " (Developer)";
 #elif FROSTY_ALPHA

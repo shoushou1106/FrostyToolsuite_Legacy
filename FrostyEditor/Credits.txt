@@ -1,4 +1,7 @@
-﻿[Credits]
+﻿WARNING: This is an unoffical version of Frosty
+DcProjShareTest by shoushou1106
+
+[Credits]
 
 Project: Json.NET
 Copyright (c) 2007 James Newton-King

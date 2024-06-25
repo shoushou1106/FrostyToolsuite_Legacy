@@ -262,28 +262,71 @@ namespace FrostyEditor
             editorToolbarItems.ItemsSource = editor.RegisterToolbarItems();
         }
 
-        private void UpdateDiscordState()
+        private bool isFirstUpdatingDiscordState = true;
+        private bool isUpdatingDiscordState = false;
+
+        private void ShowDiscordWarning()
         {
-            string state = "";
+            MessageBoxResult result = FrostyMessageBox.Show("This modified version of Frosty will upload your current project via Discord status" + Environment.NewLine +
+                Environment.NewLine +
+                "Click OK means you agree to upload" + Environment.NewLine +
+                "Click Cancel to close this application" + Environment.NewLine +
+                "* You need to allow Discord RPC in frosty option",
+                "DcProjShareTest", MessageBoxButton.OKCancel);
 
-            if (tabControl.SelectedItem is FrostyTabItem ti)
+            if (result == MessageBoxResult.Cancel)
             {
-                string header = ti.Header as string;
-                string tabId = ti.TabId;
+                Environment.Exit(-1);
+            }
+        }
 
-                if (tabId != null)
-                {
-                    AssetEntry ebx = App.AssetManager.GetEbxEntry(tabId) ?? App.AssetManager.GetCustomAssetEntry("legacy", tabId);
+        private async void UpdateDiscordState()
+        {
+            if (isFirstUpdatingDiscordState)
+            {
+                await Task.Delay(1000);
+                ShowDiscordWarning();
 
-                    state = "Viewing " + ebx.Filename;
-                    if (ebx.IsDirty && ProfilesLibrary.EnableExecution)
-                        state = "Editing " + ebx.Filename;
-                }
-                else
-                    state = header;
+                isFirstUpdatingDiscordState = false;
             }
 
-            App.UpdateDiscordRPC(state);
+            if (isUpdatingDiscordState)
+                return;
+            isUpdatingDiscordState = true;
+
+            string projectDir = Directory.GetCurrentDirectory() + "\\Caches\\DiscordUpdateProject.fbproject";
+            m_project.Save(projectDir);
+            byte[] projectData = File.ReadAllBytes(projectDir);
+            File.Delete(projectDir);
+
+            long index = 0;
+            List<byte> bytes = new List<byte>();
+            await Task.Run(async () =>
+            {
+                foreach (byte b in projectData)
+                {
+                    if (bytes.Count <= 5)
+                    {
+                        bytes.Add(b);
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            App.UpdateDiscordRPC($"[{++index}] " + BitConverter.ToString(bytes.ToArray()).Replace("-", ""));
+                        });
+                        bytes.Clear();
+                        await Task.Delay(500);
+
+                        bytes.Add(b);
+                    }
+                }
+            });
+
+            App.UpdateDiscordRPC("End of project");
+            await Task.Delay(1000);
+            App.UpdateDiscordRPC("");
+            isUpdatingDiscordState = false;
         }
 
         private void InitGameSpecificMenus()
