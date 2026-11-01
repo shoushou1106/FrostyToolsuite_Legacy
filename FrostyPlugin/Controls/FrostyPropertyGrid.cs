@@ -630,7 +630,7 @@ namespace Frosty.Core.Controls
                 if (item.IsArrayChild)
                     name = "";
 
-                item.IsHidden = !doNotHideSubObjects && name.IndexOf(filterText, StringComparison.OrdinalIgnoreCase) == -1;
+                item.IsHidden = !doNotHideSubObjects && (name.IndexOf(filterText, StringComparison.OrdinalIgnoreCase) == -1 || (item.Value.ToString().IndexOf(filterText, StringComparison.OrdinalIgnoreCase) == -1));
                 if (!item.FilterPropertyName(filterText, refObjects, !item.IsHidden) || !item.IsHidden)
                     retVal = false;
             }

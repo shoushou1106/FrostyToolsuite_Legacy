@@ -6,6 +6,8 @@ using FrostySdk.Ebx;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -479,9 +481,10 @@ namespace LocalizedStringPlugin
         {
             public string Key;
             public string Eng;
-            public string Zh;
+            //public string Zh;
             public List<string> Path;
-            public List<string> Guess;
+            //public List<string> Guess;
+            public string ID;
             public string Opt
             {
                 get
@@ -497,30 +500,46 @@ namespace LocalizedStringPlugin
                     //key_peas, peas, 豌豆
                     //key_green_bean,green bean, 青豆
 
+                    //[
+                    //{
+                    //    "key": "KEY 键值",
+                    //    "original": "source text 原文",
+                    //    "translation": "translation text 译文",
+                    //    "context": "Context 上下文 (for info)"
+                    //},
+                    //{
+                    //    "key": "KEY 键值 2",
+                    //    "original": "source text 原文 2",
+                    //    "translation": "translation text 译文 2"
+                    //}
+                    //]
+
                     StringBuilder sb = new StringBuilder();
+                    sb.Append("{\"key\": \"");
                     sb.Append(Key);
-                    sb.Append(",\"");
-                    if (Eng.Contains('\"'))
-                        sb.Append("稍后上传");
-                    else
-                        sb.Append(Eng);
-                    sb.Append("\",\"\",\"");
+                    sb.Append("\", \"original\": \"");
+                    sb.Append(Eng.Replace("\"", "\\\"").Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\n"));
 
+                    sb.Append("\", \"context\": \"");
                     var list = Path.Distinct().ToList();
-                    sb.AppendLine("路径: ");
+                    sb.Append("路径: \\n");
                     foreach (string str in list)
-                        sb.AppendLine(str);
+                        sb.Append(str + "\\n");
 
-                    list = Guess.Distinct().ToList();
-                    sb.Append("猜测: ");
-                    foreach (string str in list)
-                        sb.Append(str + "; ");
+                    sb.Append("ID: ");
+                    sb.Append(ID);
 
-                    sb.AppendLine();
-                    sb.AppendLine("繁体中文: ");
-                    sb.Append(Zh);
+                    sb.Append("\\n");
 
-                    sb.Append("\"");
+                    //list = Guess.Distinct().ToList();
+                    //sb.Append("\\n猜测: ");
+                    //foreach (string str in list)
+                    //    sb.Append(str + "; ");
+
+                    //sb.Append("\\n繁体中文: \\n");
+                    //sb.Append(Zh.Replace("\"", "\\\"").Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\n"));
+
+                    sb.Append("\"},");
 
                     return sb.ToString();
                 }
@@ -543,9 +562,9 @@ namespace LocalizedStringPlugin
                 tags.Add("任务");
             if (path.Contains("online/persistence/scoring/pvzscoring"))
                 tags.Add("得分");
-            if (path.Contains("gameplay/ai/ai_templates"))
+            if (path.Contains("ai_templates") || path.Contains("aicharacters"))
                 tags.Add("AI名称");
-            if (path.Contains("BossSpeech"))
+            if (path.Contains("bossspeech"))
                 tags.Add("演讲");
             if (path.StartsWith("_pvz"))
                 tags.Add("GW1");
@@ -582,7 +601,7 @@ namespace LocalizedStringPlugin
                     str.Key = stringId.ToString("X8");
                     str.Eng = db.GetString(stringId);
                     str.Path = new List<string>();
-                    str.Guess = new List<string>();
+                    //str.Guess = new List<string>();
                     EngStr.Add(stringId.ToString("X").ToLower(), str);
                 }
                 foreach (EbxAssetEntry refEntry in App.AssetManager.EnumerateEbx())
@@ -600,7 +619,7 @@ namespace LocalizedStringPlugin
                                 AlreadyDone.Add(TempString);
                                 OptStr str = EngStr[TempString];
                                 str.Path.Add(refEntry.Name);
-                                str.Guess = EngStr[TempString].Guess.Concat(GuessTag(refEntry.Name)).ToList();
+                                //str.Guess = EngStr[TempString].Guess.Concat(GuessTag(refEntry.Name)).ToList();
                                 EngStr[TempString] = str;
                             }
                         }
@@ -614,7 +633,8 @@ namespace LocalizedStringPlugin
                                     AlreadyDone.Add(TempString);
                                     OptStr str = EngStr[TempString];
                                     str.Path.Add(refEntry.Name);
-                                    str.Guess = EngStr[TempString].Guess.Concat(GuessTag(refEntry.Name)).ToList();
+                                    //str.Guess = EngStr[TempString].Guess.Concat(GuessTag(refEntry.Name)).ToList();
+                                    str.ID = pi.GetValue(obj);
                                     EngStr[TempString] = str;
                                 }
                             }
@@ -628,7 +648,8 @@ namespace LocalizedStringPlugin
                                         AlreadyDone.Add(TempString);
                                         OptStr str = EngStr[TempString];
                                         str.Path.Add(refEntry.Name);
-                                        str.Guess = EngStr[TempString].Guess.Concat(GuessTag(refEntry.Name)).ToList();
+                                    //    str.Guess = EngStr[TempString].Guess.Concat(GuessTag(refEntry.Name)).ToList();
+                                        str.ID = cst;
                                         EngStr[TempString] = str;
                                     }
                                 }
@@ -639,37 +660,94 @@ namespace LocalizedStringPlugin
             });
         }
 
+        class JsonInput
+        {
+            public string key { get; set; }
+            public string translation { get; set; }
+        }
+
         private void BtnImport_Click(object sender, RoutedEventArgs e)
         {
-            FrostyOpenFileDialog ofd = new FrostyOpenFileDialog("Import Localized Strings", "*.csv (CSV File)|*.csv", "LocalizedStrings");
+            FrostyOpenFileDialog ofd = new FrostyOpenFileDialog("Import Localized Strings", "*.* (Any)|*.*", "LocalizedStrings");
             if (ofd.ShowDialog())
             {
                 int modified = 0;
                 int added = 0;
+                int converted = 0;
+                int ignored = 0;
                 FrostyTaskWindow.Show("Importing Localized Strings", "", (task) =>
                 {
+                    JObject jObject;
                     using (StreamReader reader = new StreamReader(ofd.FileName))
                     {
-                        while (!reader.EndOfStream)
+                        jObject = JObject.Parse("{\"header1\": " + reader.ReadToEnd() + "}");
+                        //while (!reader.EndOfStream)
+                        //{
+                        //    string line = reader.ReadLine();
+                        //    uint hash = uint.Parse(line.Substring(0, 8), System.Globalization.NumberStyles.HexNumber);
+                        //    string s = line.Substring(10, line.Length - 11);
+                        //    if (stringIds.Contains(hash) && s != db.GetString(hash))
+                        //    {
+                        //        db.SetString(hash, s);
+                        //        modified++;
+                        //    }
+                        //    else
+                        //    {
+                        //        db.SetString(hash, s);
+                        //        added++;
+                        //    }
+                        //}
+                    }
+                    IList<JToken> results = jObject["header1"].Children().ToList();
+
+                    // serialize JSON results into .NET objects
+                    IList<JsonInput> jsonInputs = new List<JsonInput>();
+                    foreach (JToken result in results)
+                    {
+                        // JToken.ToObject is a helper method that uses JsonSerializer internally
+                        JsonInput inputResult = result.ToObject<JsonInput>();
+                        jsonInputs.Add(inputResult);
+                    }
+
+                    GC.Collect();
+
+                    var isMT = FrostyMessageBox.Show("Use Machine Translate to convert empty string?", "import paratranz json", MessageBoxButton.YesNo);
+
+                    foreach (JsonInput input in jsonInputs)
+                    {
+                        uint hash = uint.Parse(input.key, System.Globalization.NumberStyles.HexNumber);
+                        string s = input.translation;
+
+                        if (string.IsNullOrEmpty(s))
                         {
-                            string line = reader.ReadLine();
-                            uint hash = uint.Parse(line.Substring(0, 8), System.Globalization.NumberStyles.HexNumber);
-                            string s = line.Substring(10, line.Length - 11);
-                            if (stringIds.Contains(hash) && s != db.GetString(hash))
+                            if (s != db.GetString(hash) && isMT == MessageBoxResult.Yes)
                             {
-                                db.SetString(hash, s);
-                                modified++;
+                                db.SetString(hash, ChineseConverter.Convert(db.GetString(hash), ChineseConversionDirection.TraditionalToSimplified));
+                                converted++;
                             }
                             else
-                            {
-                                db.SetString(hash, s);
-                                added++;
-                            }
+                                ignored++;
+                        }
+                        else if (stringIds.Contains(hash) && s != db.GetString(hash))
+                        {
+                            db.SetString(hash, s);
+                            modified++;
+                        }
+                        else if (s == db.GetString(hash))
+                        {
+                            ignored++;
+                        }
+                        else
+                        {
+                            db.SetString(hash, s);
+                            added++;
                         }
                     }
+
                 });
                 Refresh_Click(sender, e);
                 logger.Log(string.Format("{0} strings modified and {1} strings added.", modified, added));
+                logger.Log($"{converted} strings converted and {ignored} strings ignored");
             }
         }
 
@@ -692,16 +770,18 @@ namespace LocalizedStringPlugin
                     foreach (uint stringId in stringIds)
                     {
                         OptStr str = EngStr[stringId.ToString("X").ToLower()];
-                        str.Zh = db.GetString(stringId);
+                        //str.Zh = db.GetString(stringId);
                         EngStr[stringId.ToString("X").ToLower()] = str;
                     }
 
                     using (StreamWriter writer = new StreamWriter(sfd.FileName))
                     {
+                        writer.Write("[");
                         foreach (OptStr StringData in EngStr.Values)
                         {
                             writer.WriteLine(StringData.Opt);
                         }
+                        writer.Write(']');
                     }
                 });
 

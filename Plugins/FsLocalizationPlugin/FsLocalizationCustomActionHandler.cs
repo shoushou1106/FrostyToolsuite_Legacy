@@ -1,4 +1,5 @@
 ﻿using Frosty.Core;
+using Frosty.Core.Controls;
 using Frosty.Core.IO;
 using Frosty.Core.Mod;
 using Frosty.Hash;
@@ -192,8 +193,6 @@ namespace FsLocalizationPlugin
                 for (int i = 0; i < count; i++)
                 {
                     ids.Add(reader.ReadUInt());
-                    if (!strings.ContainsKey(ids[i]))
-                        strings.Add(ids[i], null);
                     offsets.Add(reader.ReadUInt());
                 }
 
@@ -204,6 +203,8 @@ namespace FsLocalizationPlugin
 
                 }
             }
+
+            List<char> errorChar = new List<char>();
 
             foreach (uint key in modifiedData.EnumerateStrings())
             {
@@ -220,7 +221,7 @@ namespace FsLocalizationPlugin
                         int index = values.FindIndex((char a) => { return a.Equals(b); });
                         if (index == -1)
                         {
-                            App.Logger.LogWarning("Character not supported: " + b + " from string: " + key.ToString("X8"));
+                            errorChar.Add(b);
                             continue;
                         }
 
@@ -249,6 +250,19 @@ namespace FsLocalizationPlugin
                 else
                     strings[key] = sb.ToString();
             }
+
+            FrostySaveFileDialog ofd = new FrostySaveFileDialog("Save", "*.* (Any)|*.*", "LocalizedStrings");
+            if (ofd.ShowDialog())
+            {
+                using (StreamWriter writer = new StreamWriter(ofd.FileName))
+                {
+                    foreach (char str in errorChar.Distinct().ToList())
+                    {
+                        writer.Write(str);
+                    }
+                }
+            };
+
 
             ids.Sort();
             offsets.Clear();
