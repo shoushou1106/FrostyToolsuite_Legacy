@@ -297,14 +297,14 @@ namespace Frosty.ModSupport
                 try
                 {
                     string tocPath = parent.fs.ResolvePath(SuperBundle + ".toc");
-                    string newTocPath = tocPath.Replace("patch\\win32", parent.modDirName.ToLower() + "\\patch\\win32");
+                    string newTocPath = tocPath.Replace("patch\\win32", parent.modDirName.ToLower() + "\\patch\\win32").Replace(parent.fs.BasePath, parent.GW2WithEAACGamePath + "\\");
 
                     TocFile toc = new TocFile(parent.fs.ResolvePath(SuperBundle + ".toc"), parent);
                     NativeWriter casWriter = null;
                     int casFileIndex = 0;
 
                     string sbPath = parent.fs.ResolvePath(SuperBundle + ".sb");
-                    string newSbPath = sbPath.Replace("patch\\win32", parent.modDirName.ToLower() + "\\patch\\win32");
+                    string newSbPath = sbPath.Replace("patch\\win32", parent.modDirName.ToLower() + "\\patch\\win32").Replace(parent.fs.BasePath, parent.GW2WithEAACGamePath + "\\");
 
                     FileInfo sbFi = new FileInfo(newSbPath);
                     if (!Directory.Exists(sbFi.DirectoryName))
@@ -483,7 +483,7 @@ namespace Frosty.ModSupport
                     CasFiles[catalog]++;
                 }
 
-                FileInfo fi = new FileInfo(parent.fs.BasePath + parent.modDirName + "\\Patch\\" + catalog + "\\cas_" + casFileIndex.ToString("D2") + ".cas");
+                FileInfo fi = new FileInfo(parent.GW2WithEAACGamePath + "\\" + parent.modDirName + "\\Patch\\" + catalog + "\\cas_" + casFileIndex.ToString("D2") + ".cas");
                 if (!Directory.Exists(fi.DirectoryName))
                     Directory.CreateDirectory(fi.DirectoryName);
 

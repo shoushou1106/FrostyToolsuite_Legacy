@@ -120,7 +120,7 @@ namespace Frosty.ModSupport
 
                         if (parent.modifiedBundles.ContainsKey(chunksBundleHash))
                         {
-                            FileInfo sbFi = new FileInfo(parent.fs.BasePath + modPath + "/" + superBundle + ".sb");
+                            FileInfo sbFi = new FileInfo(parent.GW2WithEAACGamePath + "\\" + modPath + "/" + superBundle + ".sb");
                             ModBundleInfo chunkBundle = parent.modifiedBundles[chunksBundleHash];
 
                             if (isBinary)
@@ -479,7 +479,7 @@ namespace Frosty.ModSupport
                             }
 
                             // make sure directory exists
-                            FileInfo sbFi = new FileInfo(parent.fs.BasePath + modPath + "/" + superBundle + ".sb");
+                            FileInfo sbFi = new FileInfo(parent.GW2WithEAACGamePath + "\\" + modPath + "/" + superBundle + ".sb");
                             Directory.CreateDirectory(sbFi.DirectoryName);
 
                             long bundleOffset = 0;
@@ -700,7 +700,7 @@ namespace Frosty.ModSupport
                                     else
                                     {
                                         patchSb.Position = bundle.GetValue<long>("offset");
-                                        using (NativeWriter writer = new NativeWriter(new FileStream(parent.fs.BasePath + modPath + "/" + superBundle + ".sb", FileMode.Append, FileAccess.Write)))
+                                        using (NativeWriter writer = new NativeWriter(new FileStream(parent.GW2WithEAACGamePath + "\\" + modPath + "/" + superBundle + ".sb", FileMode.Append, FileAccess.Write)))
                                         {
                                             byte[] buf = new byte[1024 * 1024];
                                             long size = bundle.GetValue<long>("size");
@@ -974,7 +974,7 @@ namespace Frosty.ModSupport
                                 }
 
                                 // now write out new patched binary superbundle
-                                using (NativeWriter writer = new NativeWriter(new FileStream(parent.fs.BasePath + modPath + "/" + superBundle + ".sb", FileMode.Append, FileAccess.Write)))
+                                using (NativeWriter writer = new NativeWriter(new FileStream(parent.GW2WithEAACGamePath + "\\" + modPath + "/" + superBundle + ".sb", FileMode.Append, FileAccess.Write)))
                                 {
                                     writer.Write(0x01, Endian.Big);
                                     writer.Write(0x00, Endian.Big);
@@ -1577,7 +1577,7 @@ namespace Frosty.ModSupport
                             if (sbChanged)
                             {
                                 // write out actual SuperBundle
-                                FileInfo fi = new FileInfo(parent.fs.BasePath + modPath + "/" + superBundle + ".sb");
+                                FileInfo fi = new FileInfo(parent.GW2WithEAACGamePath + "\\" + modPath + "/" + superBundle + ".sb");
                                 Directory.CreateDirectory(fi.DirectoryName);
 
                                 int bundleListSize = (int)(outSbStream.Length + 1);
@@ -1615,7 +1615,7 @@ namespace Frosty.ModSupport
 
                     if (tocChanged)
                     {
-                        FileInfo fi = new FileInfo(parent.fs.BasePath + modPath + "/" + superBundle + ".toc");
+                        FileInfo fi = new FileInfo(parent.GW2WithEAACGamePath + "\\" + modPath + "/" + superBundle + ".toc");
                         Directory.CreateDirectory(fi.DirectoryName);
 
                         // write out modified toc file

@@ -98,7 +98,7 @@ namespace Frosty.ModSupport
                                 }
                             }
 
-                            string newTocPath = tocPath.Replace("patch\\win32", parent.modDirName.ToLower() + "\\patch\\win32");
+                            string newTocPath = tocPath.Replace("patch\\win32", parent.modDirName.ToLower() + "\\patch\\win32").Replace(parent.fs.BasePath, parent.GW2WithEAACGamePath + "\\");
                             FileInfo tocFi = new FileInfo(newTocPath);
                             if (!Directory.Exists(tocFi.DirectoryName))
                                 Directory.CreateDirectory(tocFi.DirectoryName);
@@ -833,11 +833,11 @@ namespace Frosty.ModSupport
             private NativeWriter GetNextCas(out int casFileIndex)
             {
                 int casIndex = 1;
-                string casPath = parent.fs.BasePath + parent.modDirName + "\\patch\\" + CatalogInfo.Name + "\\cas_" + casIndex.ToString("D2") + ".cas";
+                string casPath = parent.GW2WithEAACGamePath + "\\" + parent.modDirName + "\\patch\\" + CatalogInfo.Name + "\\cas_" + casIndex.ToString("D2") + ".cas";
                 while (File.Exists(casPath))
                 {
                     casIndex++;
-                    casPath = parent.fs.BasePath + parent.modDirName + "\\patch\\" + CatalogInfo.Name + "\\cas_" + casIndex.ToString("D2") + ".cas";
+                    casPath = parent.GW2WithEAACGamePath + "\\" + parent.modDirName + "\\patch\\" + CatalogInfo.Name + "\\cas_" + casIndex.ToString("D2") + ".cas";
                 }
 
                 lock (Locker)

@@ -19,7 +19,7 @@
                 <RowDefinition Height="38"/>
             </Grid.RowDefinitions>
 
-            <ListView Grid.Row="0" x:Name="ConfigList" SelectionChanged="ConfigList_SelectionChanged" Background="{StaticResource WindowBackground}" MouseDoubleClick="ConfigList_MouseDoubleClick">
+            <!-- <ListView Grid.Row="0" x:Name="ConfigList" SelectionChanged="ConfigList_SelectionChanged" Background="{StaticResource WindowBackground}" MouseDoubleClick="ConfigList_MouseDoubleClick">
                 <ListView.View>
                     <ctrl:FrostyAutoSizedGridView>
                         <GridView.Columns>
@@ -45,15 +45,28 @@
                         </GridView.Columns>
                     </ctrl:FrostyAutoSizedGridView>
                 </ListView.View>
-            </ListView>
+            </ListView>> -->
 
-            <Grid Grid.Row="1" Background="{StaticResource ListBackground}">
-                <Button x:Name="NewConfigButton" Content="New" HorizontalAlignment="Right" Padding="12,0" Margin="0,6,66,6" Click="NewConfigButton_Click"/>
-                <Button x:Name="RemoveConfigButton" Content="Remove" HorizontalAlignment="Right" Padding="12,0" Margin="0,6,119,6" Click="RemoveConfigButton_Click"/>
-                <Button x:Name="LaunchConfigButton" Content="Select" HorizontalAlignment="Right" Padding="12,0" Margin="0,6,6,6" Click="LaunchConfigButton_Click"/>
+            <StackPanel Background="{StaticResource WindowBackground}">
+                <Label Content="GW2 With EAAC:" FontWeight="Bold" FontSize="14"/>
+                <Button Content="Select game" Width="75" Height="25" HorizontalAlignment="Left" Margin="5" Click="ChooseGW2WithEAACButton_Click"/>
+                <TextBlock x:Name="GW2WithEAAC_GamePath" Margin="5" Foreground="White"/>
 
-                <Button Content="Scan for games" HorizontalAlignment="Left" Padding="12,0" Margin="6,6,0,6" Click="ScanForGamesButton_Click"/>
-            </Grid>
+                <Border  BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0, 10, 0, 10" BorderThickness="1"/>
+
+                <Label Content="GW2 Without EAAC:" FontWeight="Bold" FontSize="14"/>
+                <Button Content="Select game" Width="75" Height="25" HorizontalAlignment="Left" Margin="5" Click="ChooseGW2WithoutEAACButton_Click"/>
+                <TextBlock x:Name="GW2WithoutEAAC_GamePath" Margin="5" Foreground="White"/>
+            </StackPanel>
+
+            <DockPanel Grid.Row="1" Background="{StaticResource ListBackground}">
+                <!-- <Button x:Name="NewConfigButton" Content="New" HorizontalAlignment="Right" Padding="12,0" Margin="0,6,66,6" Click="NewConfigButton_Click"/> -->
+                <!-- <Button x:Name="RemoveConfigButton" Content="Remove" HorizontalAlignment="Right" Padding="12,0" Margin="0,6,119,6" Click="RemoveConfigButton_Click"/> -->
+                <Button x:Name="LaunchConfigButton" Content="Launch" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="6" Width="50" Click="LaunchConfigButton_Click"/>
+                <Button x:Name="LaunchConfigWithoutOldButton" Content="Launch Without Old Version" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="6" Width="160" Click="LaunchConfigWithoutOldButton_Click"/>
+
+                <!-- <Button Content="Scan for games" HorizontalAlignment="Left" Padding="12,0" Margin="6,6,0,6" Click="ScanForGamesButton_Click"/> -->
+            </DockPanel>
         </Grid>
     </Grid>
 </ctrl:FrostyDockableWindow>

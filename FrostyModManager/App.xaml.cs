@@ -38,6 +38,8 @@ namespace FrostyModManager
 
         public static PluginManager PluginManager { get => Frosty.Core.App.PluginManager; set => Frosty.Core.App.PluginManager = value; }
 
+        public static string GW2WithEAACGamePath { get; set; }
+
         private List<FrostyConfiguration> configs = new List<FrostyConfiguration>();
         private FrostyConfiguration defaultConfig = null;
 
@@ -62,6 +64,8 @@ namespace FrostyModManager
 
             // for displaying exception box on all unhandled exceptions
             DispatcherUnhandledException += App_DispatcherUnhandledException;
+
+            Version += " (GW2 Bypass 1.1.0)";
 
 #if FROSTY_DEVELOPER
             Version += " (Developer)";

@@ -460,7 +460,7 @@ namespace FrostyEditor
                             File.Delete(modsJsonPath);
                         }
 
-                        executor.Run(App.FileSystem, cancelToken.Token, task.TaskLogger, $"Mods/{ProfilesLibrary.ProfileName}/", App.SelectedPack, additionalArgs.Trim(), modPaths.ToArray());
+                        executor.Run(App.FileSystem, cancelToken.Token, task.TaskLogger, $"Mods/{ProfilesLibrary.ProfileName}/", App.SelectedPack, additionalArgs.Trim(), App.GW2WithEAACGamePath, modPaths.ToArray());
 
                         foreach (ExecutionAction executionAction in App.PluginManager.ExecutionActions)
                         {

@@ -37,6 +37,8 @@ namespace FrostyEditor
 
         public static string LaunchArgs { get; private set; }
 
+        public static string GW2WithEAACGamePath { get; set; }
+
         private FrostyConfiguration defaultConfig;
 
         public App()
@@ -59,6 +61,8 @@ namespace FrostyEditor
             // for displaying exception box on all unhandled exceptions
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             Exit += Application_Exit;
+
+            Version += " (GW2 Bypass 1.1.0)";
 
 #if FROSTY_DEVELOPER
             Version += " (Developer)";

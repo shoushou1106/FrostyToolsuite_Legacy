@@ -1,4 +1,6 @@
-﻿[Credits]
+﻿GW2 Bypass by shoushou1106
+
+[Credits]
 
 Project: Json.NET
 Copyright (c) 2007 James Newton-King

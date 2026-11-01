@@ -190,6 +190,7 @@ namespace Frosty.ModSupport
         private ResourceManager rm;
         private AssetManager am;
         private ILogger logger;
+        private string GW2WithEAACGamePath;
 
         private List<string> addedSuperBundles = new List<string>();
 
@@ -1001,7 +1002,7 @@ namespace Frosty.ModSupport
             }
         }
 
-        public int Run(FileSystem inFs, CancellationToken cancelToken, ILogger inLogger, string rootPath, string modPackName, string additionalArgs, params string[] modPaths)
+        public int Run(FileSystem inFs, CancellationToken cancelToken, ILogger inLogger, string rootPath, string modPackName, string additionalArgs, string GW2WithEAACPath, params string[] modPaths)
         {
             modDirName = "ModData\\" + modPackName;
             cancelToken.ThrowIfCancellationRequested();
@@ -1010,8 +1011,9 @@ namespace Frosty.ModSupport
 
             fs = inFs;
             Logger = inLogger;
+            GW2WithEAACGamePath = GW2WithEAACPath;
 
-            string modDataPath = fs.BasePath + modDirName + "\\";
+            string modDataPath = GW2WithEAACGamePath + "\\" + modDirName + "\\";
             string patchPath = "Patch";
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa17 || ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare2 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                 patchPath = "Update\\Patch\\Data";
@@ -1177,14 +1179,14 @@ namespace Frosty.ModSupport
                         {
                             if (!Directory.Exists(modDataPath + "Data"))
                                 Directory.CreateDirectory(modDataPath + "Data");
-                            cmdArgs.Add(new SymLinkStruct(modDataPath + "Data/Win32", fs.BasePath + "Data/Win32", true));
+                            cmdArgs.Add(new SymLinkStruct(modDataPath + "Data/Win32", GW2WithEAACGamePath + "\\" + "Data/Win32", true));
                         }
                         if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5) //bfv doesnt have a patch directory so we need to rebuild the data folder structure instead
                         {
                             if (!Directory.Exists(modDataPath + "Data"))
                                 Directory.CreateDirectory(modDataPath + "Data");
 
-                            foreach (string casFilename in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
+                            foreach (string casFilename in Directory.EnumerateFiles(GW2WithEAACGamePath + "\\" + patchPath, "*.cas", SearchOption.AllDirectories))
                             {
                                 FileInfo casFi = new FileInfo(casFilename);
                                 string destPath = casFi.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
@@ -1199,7 +1201,7 @@ namespace Frosty.ModSupport
                         else
                         {
                             // data path
-                            cmdArgs.Add(new SymLinkStruct(modDataPath + "Data", fs.BasePath + "Data", true));
+                            cmdArgs.Add(new SymLinkStruct(modDataPath + "Data", GW2WithEAACGamePath + "\\" + "Data", true));
                         }
 
                         if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare2 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
@@ -1209,7 +1211,7 @@ namespace Frosty.ModSupport
                                 Directory.CreateDirectory(modDataPath + "Update");
 
                             // update paths
-                            foreach (string path in Directory.EnumerateDirectories(fs.BasePath + "Update"))
+                            foreach (string path in Directory.EnumerateDirectories(GW2WithEAACGamePath + "\\" + "Update"))
                             {
                                 DirectoryInfo di = new DirectoryInfo(path);
 
@@ -1221,7 +1223,7 @@ namespace Frosty.ModSupport
                         else if (ProfilesLibrary.DataVersion != (int)ProfileVersion.Fifa17)
                         {
                             // update path
-                            cmdArgs.Add(new SymLinkStruct(modDataPath + "Update", fs.BasePath + "Update", true));
+                            cmdArgs.Add(new SymLinkStruct(modDataPath + "Update", GW2WithEAACGamePath + "\\" + "Update", true));
                         }
 
                         if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedHeat
@@ -1230,7 +1232,7 @@ namespace Frosty.ModSupport
 #endif
                                 )
                         {
-                            foreach (string casFilename in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
+                            foreach (string casFilename in Directory.EnumerateFiles(GW2WithEAACGamePath + "\\" + patchPath, "*.cas", SearchOption.AllDirectories))
                             {
                                 FileInfo casFi = new FileInfo(casFilename);
                                 string destPath = casFi.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
@@ -1316,12 +1318,12 @@ namespace Frosty.ModSupport
                     foreach (string catalog in fs.Catalogs)
                     {
                         int casIndex = 1;
-                        string path = fs.BasePath + "Patch\\" + catalog + "\\cas_" + casIndex.ToString("D2") + ".cas";
+                        string path = GW2WithEAACGamePath + "\\" + "Patch\\" + catalog + "\\cas_" + casIndex.ToString("D2") + ".cas";
 
                         while (File.Exists(path))
                         {
                             casIndex++;
-                            path = fs.BasePath + "Patch\\" + catalog + "\\cas_" + casIndex.ToString("D2") + ".cas";
+                            path = GW2WithEAACGamePath + "\\" + "Patch\\" + catalog + "\\cas_" + casIndex.ToString("D2") + ".cas";
                         }
 
                         HeatBundleAction.CasFiles.Add(catalog, casIndex);
@@ -1387,7 +1389,7 @@ namespace Frosty.ModSupport
                 else if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20)
                 {
                     DbObject layout = null;
-                    using (DbReader reader = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                    using (DbReader reader = new DbReader(new FileStream(GW2WithEAACGamePath + "\\" + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
                         layout = reader.ReadDbObject();
 
                     FifaBundleAction.CasFileCount = fs.CasFileCount;
@@ -1639,10 +1641,10 @@ namespace Frosty.ModSupport
                     cancelToken.ThrowIfCancellationRequested();
                     if (!File.Exists(modDataPath + patchPath + "\\" + entry.Catalog + "\\cas.cat"))
                     {
-                        if (!File.Exists(fs.BasePath + "data\\" + entry.Catalog + "\\cas.cat"))
+                        if (!File.Exists(GW2WithEAACGamePath + "\\" + "data\\" + entry.Catalog + "\\cas.cat"))
                             continue;
 
-                        using (NativeReader reader = new NativeReader(new FileStream(fs.BasePath + "data\\" + entry.Catalog + "\\cas.cat", FileMode.Open, FileAccess.Read)))
+                        using (NativeReader reader = new NativeReader(new FileStream(GW2WithEAACGamePath + "\\" + "data\\" + entry.Catalog + "\\cas.cat", FileMode.Open, FileAccess.Read)))
                         {
                             FileInfo fi = new FileInfo(modDataPath + patchPath + "\\" + entry.Catalog + "\\cas.cat");
                             if (!fi.Directory.Exists)
@@ -1675,13 +1677,13 @@ namespace Frosty.ModSupport
                 App.Logger.Log("Writing Manifest");
 
                 // finally copy in the left over patch data
-                CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modDataPath + patchPath + "/initfs_win32");
+                CopyFileIfRequired(GW2WithEAACGamePath + "\\" + patchPath + "/initfs_win32", modDataPath + patchPath + "/initfs_win32");
 
                 if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare2 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                 {
                     // modify layout.toc for any new superbundles added
                     DbObject layout = null;
-                    using (DbReader reader = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                    using (DbReader reader = new DbReader(new FileStream(GW2WithEAACGamePath + "\\" + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
                         layout = reader.ReadDbObject();
 
                     foreach (string path in Directory.EnumerateFiles(modDataPath + patchPath, "*.sb", SearchOption.AllDirectories))
@@ -1760,14 +1762,14 @@ namespace Frosty.ModSupport
                 if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa17 || ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare2 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                 {
                     // copy additional files
-                    CopyFileIfRequired(fs.BasePath + patchPath + "/../package.mft", modDataPath + patchPath + "/../package.mft");
+                    CopyFileIfRequired(GW2WithEAACGamePath + "\\" + patchPath + "/../package.mft", modDataPath + patchPath + "/../package.mft");
                 }
 
                 if (ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefrontII || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5)
                 {
                     // copy from old data to new data
-                    CopyFileIfRequired(fs.BasePath + "Data/chunkmanifest", modDataPath + "Data/chunkmanifest");
-                    CopyFileIfRequired(fs.BasePath + "Data/initfs_Win32", modDataPath + "Data/initfs_Win32");
+                    CopyFileIfRequired(GW2WithEAACGamePath + "\\" + "Data/chunkmanifest", modDataPath + "Data/chunkmanifest");
+                    CopyFileIfRequired(GW2WithEAACGamePath + "\\" + "Data/initfs_Win32", modDataPath + "Data/initfs_Win32");
                 }
 
                 // create the frosty mod list file
@@ -1784,42 +1786,72 @@ namespace Frosty.ModSupport
 
             cancelToken.ThrowIfCancellationRequested();
 
-            // DAI and NFS dont require bcrypt
-            if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
-            {
-                // delete old useless bcrypt
-                if (File.Exists(fs.BasePath + "bcrypt.dll"))
-                    File.Delete(fs.BasePath + "bcrypt.dll");
+            //// DAI and NFS dont require bcrypt
+            //if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
+            //{
+            //    // delete old useless bcrypt
+            //    if (File.Exists(fs.BasePath + "bcrypt.dll"))
+            //        File.Delete(fs.BasePath + "bcrypt.dll");
 
-                // copy over new CryptBase
-                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
-            }
-            CopyFileIfRequired(fs.BasePath + "user.cfg", modDataPath + "user.cfg");
+            //    // copy over new CryptBase
+            //    CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+            //}
+            //CopyFileIfRequired(fs.BasePath + "user.cfg", modDataPath + "user.cfg");
 
-            // FIFA games require a fifaconfig workaround
-            if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa17 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa18 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20)
-            {
-                FileInfo fi = new FileInfo(fs.BasePath + "FIFASetup\\fifaconfig_orig.exe");
-                if (!fi.Exists)
-                {
-                    fi = new FileInfo(fs.BasePath + "FIFASetup\\fifaconfig.exe");
-                    fi.MoveTo(fi.FullName.Replace(".exe", "_orig.exe"));
-                }
+            //// FIFA games require a fifaconfig workaround
+            //if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa17 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa18 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20)
+            //{
+            //    FileInfo fi = new FileInfo(fs.BasePath + "FIFASetup\\fifaconfig_orig.exe");
+            //    if (!fi.Exists)
+            //    {
+            //        fi = new FileInfo(fs.BasePath + "FIFASetup\\fifaconfig.exe");
+            //        fi.MoveTo(fi.FullName.Replace(".exe", "_orig.exe"));
+            //    }
 
-                CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "FIFASetup\\fifaconfig.exe");
-            }
+            //    CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "FIFASetup\\fifaconfig.exe");
+            //}
+
+            if (File.Exists(GW2WithEAACGamePath + "\\CryptBase.dll"))
+                File.Delete(GW2WithEAACGamePath + "\\CryptBase.dll");
+
+            if (File.Exists(GW2WithEAACGamePath + "\\bcrypt.dll"))
+                File.Delete(GW2WithEAACGamePath + "\\bcrypt.dll");
 
             // launch the game (redirecting to the modPath directory)
             Logger.Log("Launching Game");
 
             try
             {
-                LaunchGame(fs.BasePath, modDirName, modDataPath, additionalArgs);
+                LaunchGame(GW2WithEAACGamePath + "\\", modDirName, modDataPath, additionalArgs);
             }
             catch (Exception ex)
             {
                 App.Logger.Log("Error Launching Game: " + ex);
             }
+
+            //var isCopyDataPath = FrostyMessageBox.Show("Write this in Launch Argument in EA App / Steam." + Environment.NewLine + "Press OK to copy, Press Cancel to launch (use args in platform)" + Environment.NewLine + "-dataPath " + modDirName, "EAAC Bypass", System.Windows.MessageBoxButton.OKCancel);
+            //if (isCopyDataPath == System.Windows.MessageBoxResult.OK)
+            //{
+            //    Thread thread = new Thread(() =>
+            //    {
+            //        System.Windows.Clipboard.SetText("-dataPath " + modDirName);
+            //        System.Windows.Clipboard.Flush();
+            //    });
+            //    thread.SetApartmentState(ApartmentState.STA);
+            //    thread.Start();
+            //    thread.Join();
+            //}
+            //else if (isCopyDataPath == System.Windows.MessageBoxResult.Cancel)
+            //{
+            //    try
+            //    {
+            //        ExecuteProcess($"{GW2WithEAACGamePath}\\{ProfilesLibrary.ProfileName}.exe", "");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        App.Logger.Log("Error Launching Game: " + ex);
+            //    }
+            //}
 
             App.Logger.Log("Done");
 
@@ -1841,7 +1873,7 @@ namespace Frosty.ModSupport
             }
             else
             {
-                ExecuteProcess($"{basePath + ProfilesLibrary.ProfileName}.exe", $"-dataPath \"{modDataPath.Trim('\\')}\" {additionalArgs}");
+                ExecuteProcess($"{basePath + ProfilesLibrary.ProfileName}.exe", $"-dataPath \"{modDirName.Replace('\\', '/')}\" {additionalArgs}");
             }
         }
 
@@ -2142,9 +2174,9 @@ namespace Frosty.ModSupport
 
         private bool IsSamePatch(string modPath)
         {
-            string baseLayoutPath = fs.ResolvePath("native_patch/layout.toc");
+            string baseLayoutPath = fs.ResolvePath("native_patch/layout.toc").Replace(fs.BasePath, GW2WithEAACGamePath + "\\");
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefrontII || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5)
-                baseLayoutPath = fs.ResolvePath("native_data/layout.toc");
+                baseLayoutPath = fs.ResolvePath("native_data/layout.toc").Replace(fs.BasePath, GW2WithEAACGamePath + "\\");
 
             string modLayoutPath = modPath + "/layout.toc";
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefrontII || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5)

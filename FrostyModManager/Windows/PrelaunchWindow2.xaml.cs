@@ -19,8 +19,11 @@ namespace FrostyModManager.Windows
     /// </summary>
     public partial class PrelaunchWindow2 : FrostyDockableWindow
     {
-        private List<FrostyConfiguration> configs = new List<FrostyConfiguration>();
-        private FrostyConfiguration defaultConfig = null;
+        //private List<FrostyConfiguration> configs = new List<FrostyConfiguration>();
+        //private FrostyConfiguration defaultConfig = null;
+
+        private string GW2WithEAAC;
+        private FrostyConfiguration GW2WithoutEAAC = new FrostyConfiguration();
 
         Config ini = new Config();
 
@@ -98,41 +101,251 @@ namespace FrostyModManager.Windows
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            RefreshConfigurationList();
+            //RefreshConfigurationList();
 
-            RemoveConfigButton.IsEnabled = false;
-            LaunchConfigButton.IsEnabled = false;
+            //RemoveConfigButton.IsEnabled = false;
+            //LaunchConfigButton.IsEnabled = false;
 
-            //ini.LoadEntries("DefaultSettings.ini");
+            ////ini.LoadEntries("DefaultSettings.ini");
 
-            string defaultConfigName = Config.Get<string>("DefaultProfile", null);
-            //string defaultConfigName = ini.GetEntry("Init", "DefaultConfiguration", "");
+            //string defaultConfigName = Config.Get<string>("DefaultProfile", null);
+            ////string defaultConfigName = ini.GetEntry("Init", "DefaultConfiguration", "");
 
-            foreach (FrostyConfiguration name in configs)
-            {
-                if (name.ProfileName == defaultConfigName)
-                {
-                    defaultConfig = name;
-                }
-            }
+            //foreach (FrostyConfiguration name in configs)
+            //{
+            //    if (name.ProfileName == defaultConfigName)
+            //    {
+            //        defaultConfig = name;
+            //    }
+            //}
 
-            ConfigList.SelectedItem = defaultConfig;
+            //ConfigList.SelectedItem = defaultConfig;
+
+            RefreshConfig();
         }
 
-        private void RefreshConfigurationList()
+        //private void RefreshConfigurationList()
+        //{
+        //    configs.Clear();
+
+        //    foreach (string profile in Config.GameProfiles)
+        //    {
+        //        try
+        //        {
+        //            configs.Add(new FrostyConfiguration(profile));
+        //        }
+        //        catch (System.IO.FileNotFoundException)
+        //        {
+        //            Config.RemoveGame(profile); // couldn't find the exe, so remove it from the profile list
+        //            Config.Save();
+        //        }
+        //    }
+        //    //foreach (string s in Directory.EnumerateFiles("./", "FrostyModManager*.ini"))
+        //    //{
+        //    //    try
+        //    //    {
+        //    //        FrostyConfiguration config = new FrostyConfiguration(s);
+        //    //        configs.Add(config);
+        //    //    }
+        //    //    catch (Exception /*ex*/)
+        //    //    {
+        //    //        //FrostyMessageBox.Show("Couldn't load profile from '" + s + "': \n\n" + ex.ToString());
+        //    //    }
+        //    //}
+
+        //    ConfigList.ItemsSource = configs;
+        //}
+
+        //private void ConfigList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    RemoveConfigButton.IsEnabled = true;
+        //    LaunchConfigButton.IsEnabled = true;
+        //}
+
+        //private void NewConfigButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    OpenFileDialog ofd = new OpenFileDialog
+        //    {
+        //        Filter = "*.exe (Game Executable)|*.exe",
+        //        Title = "Choose Game Executable"
+        //    };
+
+        //    if (ofd.ShowDialog() == false)
+        //    {
+        //        FrostyMessageBox.Show("No game executable chosen.", "Frosty Mod Manager");
+        //        return;
+        //    }
+
+        //    FileInfo fi = new FileInfo(ofd.FileName);
+
+        //    // try to load game profile 
+        //    if (!ProfilesLibrary.HasProfile(fi.Name.Remove(fi.Name.Length - 4)))
+        //    {
+        //        FrostyMessageBox.Show("There was an error when trying to load game using specified profile.", "Frosty Mod Manager");
+        //        return;
+        //    }
+
+        //    // make sure config doesnt already exist
+        //    foreach (FrostyConfiguration config in configs)
+        //    {
+        //        if (config.ProfileName == fi.Name.Remove(fi.Name.Length - 4))
+        //        {
+        //            FrostyMessageBox.Show("That game already has a configuration.");
+        //            return;
+        //        }
+        //    }
+
+        //    // create
+        //    Config.AddGame(fi.Name.Remove(fi.Name.Length - 4), fi.DirectoryName);
+        //    configs.Add(new FrostyConfiguration(fi.Name.Remove(fi.Name.Length - 4)));
+        //    Config.Save();
+        //    //Config ini = new Config();
+        //    //ini.AddEntry("Init", "GamePath", fi.DirectoryName);
+        //    //ini.AddEntry("Init", "Profile", fi.Name.Remove(fi.Name.Length - 4));
+        //    //string filename = "FrostyModManager " + ini.GetEntry("Init", "Profile", "") + ".ini";
+        //    //ini.SaveEntries(filename);
+
+        //    //FrostyConfiguration cfg = new FrostyConfiguration(filename);
+        //    //configs.Add(cfg);
+        //    //ConfigList.Items.Refresh();
+        //}
+
+        //private async void ConfigList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (ConfigList.SelectedIndex == -1)
+        //        return;
+
+        //    if (ConfigList.SelectedItem is FrostyConfiguration config)
+        //    {
+        //        LaunchConfig(config.ProfileName);
+        //        await Task.Delay(1);
+        //        Close();
+        //    }
+        //    ConfigList.SelectedIndex = -1;
+        //}
+
+        //private void RemoveConfigButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (FrostyMessageBox.Show("Are you sure you want to delete this configuration?", "Frosty Mod Manager", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+        //    {
+        //        FrostyConfiguration selectedItem = ConfigList.SelectedItem as FrostyConfiguration;
+
+        //        Config.RemoveGame(selectedItem.ProfileName);
+        //        //if (File.Exists(selectedItem.Filename))
+        //        //{
+        //        //    File.Delete(selectedItem.Filename);
+        //        //}
+
+        //        configs.Remove(selectedItem);
+        //        ConfigList.Items.Refresh();
+
+        //        ConfigList.SelectedIndex = 0;
+        //        Config.Save();
+        //    }
+        //}
+
+        private async void LaunchConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            configs.Clear();
+            //if (ConfigList.SelectedIndex == -1)
+            //    return;
+
+            //if (ConfigList.SelectedItem is FrostyConfiguration config)
+            //{
+            App.GW2WithEAACGamePath = GW2WithEAAC;
+                LaunchConfig(GW2WithoutEAAC.ProfileName);
+                await Task.Delay(1);
+                Close();
+            //}
+            //ConfigList.SelectedIndex = -1;
+        }
+
+        //private void ScanForGamesButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    using (RegistryKey lmKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\WOW6432Node"))
+        //    {
+        //        int totalCount = 0;
+
+        //        IterateSubKeys(lmKey, ref totalCount);
+        //    }
+
+        //    ConfigList.Items.Refresh();
+        //}
+
+        //private void IterateSubKeys(RegistryKey subKey, ref int totalCount)
+        //{
+        //    foreach (string subKeyName in subKey.GetSubKeyNames())
+        //    {
+        //        try
+        //        {
+        //            IterateSubKeys(subKey.OpenSubKey(subKeyName), ref totalCount);
+        //        }
+        //        catch (System.Exception)
+        //        {
+        //            continue;
+        //        }
+        //    }
+
+        //    foreach (string subKeyValue in subKey.GetValueNames())
+        //    {
+        //        if (subKeyValue.IndexOf("Install Dir", StringComparison.OrdinalIgnoreCase) != -1)
+        //        {
+        //            string installDir = subKey.GetValue("Install Dir") as string;
+        //            if (string.IsNullOrEmpty(installDir))
+        //                continue;
+        //            if (!Directory.Exists(installDir))
+        //                continue;
+
+        //            foreach (string filename in Directory.EnumerateFiles(installDir, "*.exe"))
+        //            {
+        //                FileInfo fi = new FileInfo(filename);
+        //                string nameWithoutExt = fi.Name.Replace(fi.Extension, "");
+
+        //                if (ProfilesLibrary.HasProfile(nameWithoutExt))
+        //                {
+        //                    foreach (FrostyConfiguration config in configs)
+        //                    {
+        //                        if (config.ProfileName == fi.Name.Remove(fi.Name.Length - 4))
+        //                            return;
+        //                    }
+
+        //                    Config.AddGame(fi.Name.Remove(fi.Name.Length - 4), fi.DirectoryName);
+        //                    configs.Add(new FrostyConfiguration(fi.Name.Remove(fi.Name.Length - 4)));
+        //                    //Config ini = new Config();
+        //                    //ini.AddEntry("Init", "GamePath", fi.DirectoryName);
+        //                    //ini.AddEntry("Init", "Profile", fi.Name.Remove(fi.Name.Length - 4));
+        //                    //string fileName = "FrostyModManager " + ini.GetEntry("Init", "Profile", "") + ".ini";
+        //                    //ini.SaveEntries(fileName);
+
+        //                    //FrostyConfiguration cfg = new FrostyConfiguration(fileName);
+        //                    //configs.Add(cfg);
+
+        //                    totalCount++;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+        private void RefreshConfig()
+        {
+            //configs.Clear();
 
             foreach (string profile in Config.GameProfiles)
             {
-                try
+                //try
+                //{
+                //    configs.Add(new FrostyConfiguration(profile));
+                //}
+                //catch (System.IO.FileNotFoundException)
+                //{
+                //    Config.RemoveGame(profile); // couldn't find the exe, so remove it from the profile list
+                //    Config.Save();
+                //}
+
+                if (profile == "GW2.Main_Win64_Retail")
                 {
-                    configs.Add(new FrostyConfiguration(profile));
-                }
-                catch (System.IO.FileNotFoundException)
-                {
-                    Config.RemoveGame(profile); // couldn't find the exe, so remove it from the profile list
-                    Config.Save();
+                    GW2WithoutEAAC = new FrostyConfiguration(profile);
+                    GW2WithoutEAAC_GamePath.Text = GW2WithoutEAAC.GamePath + Environment.NewLine + GW2WithoutEAAC.ProfileName;
                 }
             }
             //foreach (string s in Directory.EnumerateFiles("./", "FrostyModManager*.ini"))
@@ -148,16 +361,46 @@ namespace FrostyModManager.Windows
             //    }
             //}
 
-            ConfigList.ItemsSource = configs;
+            //ConfigList.ItemsSource = configs;
         }
 
-        private void ConfigList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ChooseGW2WithEAACButton_Click(object sender, RoutedEventArgs e)
         {
-            RemoveConfigButton.IsEnabled = true;
-            LaunchConfigButton.IsEnabled = true;
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "*.exe (Game Executable)|*.exe",
+                Title = "Choose Game Executable"
+            };
+
+            if (ofd.ShowDialog() == false)
+            {
+                FrostyMessageBox.Show("No game executable chosen.", "Frosty Mod Manager");
+                return;
+            }
+
+            FileInfo fi = new FileInfo(ofd.FileName);
+
+            if (fi.Name.Remove(fi.Name.Length - 4) != "GW2.Main_Win64_Retail")
+            {
+                FrostyMessageBox.Show("Only accept GW2", "Frosty Mod Manager");
+                return;
+            }
+
+            //// try to load game profile 
+            //if (!ProfilesLibrary.HasProfile(fi.Name.Remove(fi.Name.Length - 4)))
+            //{
+            //    FrostyMessageBox.Show("There was an error when trying to load game using specified profile.", "Frosty Mod Manager");
+            //    return;
+            //}
+
+            // create
+            //Config.AddGame(fi.Name.Remove(fi.Name.Length - 4), fi.DirectoryName);
+            GW2WithEAAC = fi.DirectoryName;
+            GW2WithEAAC_GamePath.Text = GW2WithEAAC + Environment.NewLine + fi.Name;
+            //Config.Save();
         }
 
-        private void NewConfigButton_Click(object sender, RoutedEventArgs e)
+        private void ChooseGW2WithoutEAACButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog
             {
@@ -180,144 +423,83 @@ namespace FrostyModManager.Windows
                 return;
             }
 
-            // make sure config doesnt already exist
-            foreach (FrostyConfiguration config in configs)
+            if (fi.Name.Remove(fi.Name.Length - 4) != "GW2.Main_Win64_Retail")
             {
-                if (config.ProfileName == fi.Name.Remove(fi.Name.Length - 4))
+                FrostyMessageBox.Show("Only accept GW2", "Frosty Mod Manager");
+                return;
+            }
+
+            foreach (string profile in Config.GameProfiles)
+            {
+                if (profile == "GW2.Main_Win64_Retail")
                 {
-                    FrostyMessageBox.Show("That game already has a configuration.");
-                    return;
+                    FrostyConfiguration config = new FrostyConfiguration(profile);
+                    if (config.GamePath == fi.DirectoryName)
+                    {
+                        GW2WithoutEAAC = config;
+                        GW2WithoutEAAC_GamePath.Text = GW2WithoutEAAC.GamePath + Environment.NewLine + GW2WithoutEAAC.ProfileName;
+                        return;
+                    }
+                    Config.RemoveGame(profile);
+                    Config.Save();
                 }
             }
 
             // create
             Config.AddGame(fi.Name.Remove(fi.Name.Length - 4), fi.DirectoryName);
-            configs.Add(new FrostyConfiguration(fi.Name.Remove(fi.Name.Length - 4)));
+            GW2WithoutEAAC = new FrostyConfiguration(fi.Name.Remove(fi.Name.Length - 4));
+            GW2WithoutEAAC_GamePath.Text = GW2WithoutEAAC.GamePath + Environment.NewLine + GW2WithoutEAAC.ProfileName;
             Config.Save();
-            //Config ini = new Config();
-            //ini.AddEntry("Init", "GamePath", fi.DirectoryName);
-            //ini.AddEntry("Init", "Profile", fi.Name.Remove(fi.Name.Length - 4));
-            //string filename = "FrostyModManager " + ini.GetEntry("Init", "Profile", "") + ".ini";
-            //ini.SaveEntries(filename);
-
-            //FrostyConfiguration cfg = new FrostyConfiguration(filename);
-            //configs.Add(cfg);
-            ConfigList.Items.Refresh();
         }
 
-        private async void ConfigList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void LaunchConfigWithoutOldButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ConfigList.SelectedIndex == -1)
+            if (!File.Exists(GW2WithEAAC + "\\GW2.Main_Win64_Retail.exe"))
+            {
+                FrostyMessageBox.Show("Game executable not exists." + Environment.NewLine + GW2WithEAAC + "\\GW2.Main_Win64_Retail.exe", "Frosty Mod Manager (GW2 Bypass)");
                 return;
-
-            if (ConfigList.SelectedItem is FrostyConfiguration config)
-            {
-                LaunchConfig(config.ProfileName);
-                await Task.Delay(1);
-                Close();
             }
-            ConfigList.SelectedIndex = -1;
-        }
 
-        private void RemoveConfigButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (FrostyMessageBox.Show("Are you sure you want to delete this configuration?", "Frosty Mod Manager", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            FileInfo fi = new FileInfo(GW2WithEAAC + "\\GW2.Main_Win64_Retail.exe");
+
+            // try to load game profile 
+            if (!ProfilesLibrary.HasProfile(fi.Name.Remove(fi.Name.Length - 4)))
             {
-                FrostyConfiguration selectedItem = ConfigList.SelectedItem as FrostyConfiguration;
-
-                Config.RemoveGame(selectedItem.ProfileName);
-                //if (File.Exists(selectedItem.Filename))
-                //{
-                //    File.Delete(selectedItem.Filename);
-                //}
-
-                configs.Remove(selectedItem);
-                ConfigList.Items.Refresh();
-
-                ConfigList.SelectedIndex = 0;
-                Config.Save();
-            }
-        }
-
-        private async void LaunchConfigButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ConfigList.SelectedIndex == -1)
+                FrostyMessageBox.Show("There was an error when trying to load game using specified profile.", "Frosty Mod Manager (GW2 Bypass)");
                 return;
-
-            if (ConfigList.SelectedItem is FrostyConfiguration config)
-            {
-                LaunchConfig(config.ProfileName);
-                await Task.Delay(1);
-                Close();
-            }
-            ConfigList.SelectedIndex = -1;
-        }
-
-        private void ScanForGamesButton_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey lmKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\WOW6432Node"))
-            {
-                int totalCount = 0;
-
-                IterateSubKeys(lmKey, ref totalCount);
             }
 
-            ConfigList.Items.Refresh();
-        }
-
-        private void IterateSubKeys(RegistryKey subKey, ref int totalCount)
-        {
-            foreach (string subKeyName in subKey.GetSubKeyNames())
+            foreach (string profile in Config.GameProfiles)
             {
-                try
+                if (profile == "GW2.Main_Win64_Retail")
                 {
-                    IterateSubKeys(subKey.OpenSubKey(subKeyName), ref totalCount);
-                }
-                catch (System.Exception)
-                {
-                    continue;
-                }
-            }
-
-            foreach (string subKeyValue in subKey.GetValueNames())
-            {
-                if (subKeyValue.IndexOf("Install Dir", StringComparison.OrdinalIgnoreCase) != -1)
-                {
-                    string installDir = subKey.GetValue("Install Dir") as string;
-                    if (string.IsNullOrEmpty(installDir))
-                        continue;
-                    if (!Directory.Exists(installDir))
-                        continue;
-
-                    foreach (string filename in Directory.EnumerateFiles(installDir, "*.exe"))
+                    FrostyConfiguration config = new FrostyConfiguration(profile);
+                    if (config.GamePath == fi.DirectoryName)
                     {
-                        FileInfo fi = new FileInfo(filename);
-                        string nameWithoutExt = fi.Name.Replace(fi.Extension, "");
-
-                        if (ProfilesLibrary.HasProfile(nameWithoutExt))
-                        {
-                            foreach (FrostyConfiguration config in configs)
-                            {
-                                if (config.ProfileName == fi.Name.Remove(fi.Name.Length - 4))
-                                    return;
-                            }
-
-                            Config.AddGame(fi.Name.Remove(fi.Name.Length - 4), fi.DirectoryName);
-                            configs.Add(new FrostyConfiguration(fi.Name.Remove(fi.Name.Length - 4)));
-                            //Config ini = new Config();
-                            //ini.AddEntry("Init", "GamePath", fi.DirectoryName);
-                            //ini.AddEntry("Init", "Profile", fi.Name.Remove(fi.Name.Length - 4));
-                            //string fileName = "FrostyModManager " + ini.GetEntry("Init", "Profile", "") + ".ini";
-                            //ini.SaveEntries(fileName);
-
-                            //FrostyConfiguration cfg = new FrostyConfiguration(fileName);
-                            //configs.Add(cfg);
-
-                            totalCount++;
-                        }
+                        GW2WithoutEAAC = config;
+                        GW2WithoutEAAC_GamePath.Text = GW2WithoutEAAC.GamePath + Environment.NewLine + GW2WithoutEAAC.ProfileName;
+                        App.GW2WithEAACGamePath = GW2WithEAAC;
+                        LaunchConfig(GW2WithoutEAAC.ProfileName);
+                        await Task.Delay(1);
+                        Close();
+                        return;
                     }
+                    Config.RemoveGame(profile);
+                    Config.Save();
                 }
             }
+
+            // create
+            Config.AddGame(fi.Name.Remove(fi.Name.Length - 4), fi.DirectoryName);
+            GW2WithoutEAAC = new FrostyConfiguration(fi.Name.Remove(fi.Name.Length - 4));
+            GW2WithoutEAAC_GamePath.Text = GW2WithoutEAAC.GamePath + Environment.NewLine + GW2WithoutEAAC.ProfileName;
+            Config.Save();
+
+            App.GW2WithEAACGamePath = GW2WithEAAC;
+            LaunchConfig(GW2WithoutEAAC.ProfileName);
+            await Task.Delay(1);
+            Close();
+
         }
     }
 }
